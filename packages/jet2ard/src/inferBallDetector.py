@@ -10,9 +10,9 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
 import sys
 import os
-dir = os.environ['HOME'] + '/work/tf-infer/utils/'
+dir = os.environ['HOME'] + '/work/jetbot/infer'
 sys.path.insert(0, dir)
-import mod_trt_inference as infer
+import trt_inference as infer
 
 class InferBall:
 
@@ -20,13 +20,18 @@ class InferBall:
         self.imagePush = None
         self.cmd = Twist()
         self.cam = cv.VideoCapture(1)
+        if self.cam.isOpened() is False:
+            print("Cam open failed")
+            sys.exit(1)
+        self.cam.set(cv.CAP_PROP_FRAME_WIDTH, 1280)
+        self.cam.set(cv.CAP_PROP_FRAME_HEIGHT, 720)
         self.ret = None
         self.frame = None
         self.drive_pub = rospy.Publisher("/jetsoncar_teleop_joystick/cmd_vel", Twist, queue_size = 1)
         infer.setup()
 
     def infer_drive(self):
-        print("running")
+        #print("running")
         
         self.ret, self.frame = self.cam.read()
         if (self.frame) is None:
@@ -34,23 +39,25 @@ class InferBall:
             print("sleeping")
             return None
         
+        # TEMPORARILY GOT RID OF ALL PRINTING SO THAT I COULD PRINT IN THE OTHER FILE WITH CLARITY
+
         box = infer.inferenceBox(self.frame)
         mid = (box[3] + box[1])/2
         area = (box[2] - box[0]) * (box[3] - box[1]) * 10000           
         if area != 0:
             self.cmd.angular.z = ((mid*2) - 1) * -1
-            speed = ((area/80.) - 1) * - 1  # WAS 130, REDUCED FURTHER BECAUSE THAT WAS TOO CLOSE
+            speed = ((area/80.) - 1) * - 1  
         else:
             self.cmd.angular.z = 0
             speed = 0
-        print("area: " + str(area))  
-        print("mid: " + str(mid))    
-        print("self.cmd.angular.z: " + str(self.cmd.angular.z))
+        #print("area: " + str(area))  
+        #print("mid: " + str(mid))    
+        #print("self.cmd.angular.z: " + str(self.cmd.angular.z))
         if speed > 1:
             speed = 1
         if speed < -1:
             speed = -1
-        print("speed: " + str(speed)) 
+        #print("speed: " + str(speed)) 
         self.cmd.linear.x = speed   # TEMPORARILY SLOW SPEED
 
         self.drive_pub.publish(self.cmd)

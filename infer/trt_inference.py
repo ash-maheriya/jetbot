@@ -32,10 +32,13 @@ def setup():
     print("=== Setup complete!")
     
 def inferenceBox(img):
+    t0 = time.time();
     global tf_sess
     IMGSIZE   = (300, 300)    
     image  = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     image_resized = cv.resize(image, IMGSIZE, interpolation = cv.INTER_CUBIC)
+    
+    time_till_image_alteration = time.time() - t0
     
     tf_input = tf_sess.graph.get_tensor_by_name('image_tensor:0')
     tf_boxes = tf_sess.graph.get_tensor_by_name('detection_boxes:0')
@@ -45,15 +48,36 @@ def inferenceBox(img):
 
     _scores, _boxes, _classes, _num_detections = tf_sess.run([tf_scores, tf_boxes, tf_classes, tf_num_detections], 
                                                           feed_dict={tf_input: image_resized[None, ...]})
+
    
     box = _boxes[0][0]
-    cv.rectangle(img, (int(box[1]*image.shape[1]), int(box[0]*image.shape[0])), (int(box[1]*image.shape[1]) + int(box[3]*image.shape[1]), int(box[0]*image.shape[0]) + int(box[2]*image.shape[1])), (0, 255, 0), 2)    
 
-    print(box)
-    cv.imshow("Image", img)
-    cv.imshow("boxed", img)
-    if cv.waitKey(1) & 0xFF == ord('q'):
-        cv.destroyAllWindows()
+    debug = False;
+    if (debug):
+        ymin, xmin, ymax, xmax = box
+        
+        img_width = img.shape[1]
+        img_height = img.shape[0]
+        
+        print("img_width: {w}, img_height: {h}".format(h=img_height, w=img_width))
+        
+        time_till_inference = time.time() - t0
+        inference_length = time_till_inference - time_till_image_alteration
+        cv.rectangle(img, (int(xmin*img_width), int(ymin*img_height)), (int(xmax*img_width), int(ymax*img_height)), (0, 255, 0), 2) 
+            
+        print("box: " + str(box))
+        cv.imshow("Image", img)
+        if cv.waitKey(1) & 0xFF == ord('q'):
+            cv.destroyAllWindows()
+        time_till_display = time.time() - t0
+        display_length = time_till_display - time_till_inference
+        
+        total_time = time.time() - t0;
+        print("Image alteration length: " + str(time_till_image_alteration))
+        print("Inference length: " + str(inference_length))
+        print("Display length: " + str(display_length))
+        print("Total time: " + str(total_time))
+    
     return box    
 
 
