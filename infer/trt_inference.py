@@ -12,6 +12,7 @@ import numpy as np
 import time
 
 
+debug = False;
 tf_sess = None
 def setup():
     global tf_sess
@@ -49,12 +50,14 @@ def inferenceBox(img):
     _scores, _boxes, _classes, _num_detections = tf_sess.run([tf_scores, tf_boxes, tf_classes, tf_num_detections], 
                                                           feed_dict={tf_input: image_resized[None, ...]})
 
-   
-    box = _boxes[0][0]
+    amonut = 4
+    boxes = _boxes[0][0:amount]
+    classes = _classes[0][0:amount]
+    scores = _scores[0][0:amount]
 
-    debug = False;
+    # Visualize one bounding box and print out the time each process takes
     if (debug):
-        ymin, xmin, ymax, xmax = box
+        ymin, xmin, ymax, xmax = boxes[0]
         
         img_width = img.shape[1]
         img_height = img.shape[0]
@@ -65,7 +68,7 @@ def inferenceBox(img):
         inference_length = time_till_inference - time_till_image_alteration
         cv.rectangle(img, (int(xmin*img_width), int(ymin*img_height)), (int(xmax*img_width), int(ymax*img_height)), (0, 255, 0), 2) 
             
-        print("box: " + str(box))
+        print("box: " + str(boxes[0]))
         cv.imshow("Image", img)
         if cv.waitKey(1) & 0xFF == ord('q'):
             cv.destroyAllWindows()
@@ -78,7 +81,7 @@ def inferenceBox(img):
         print("Display length: " + str(display_length))
         print("Total time: " + str(total_time))
     
-    return box    
+    return boxes, classes, scores, amount    
 
 
 #EOF
