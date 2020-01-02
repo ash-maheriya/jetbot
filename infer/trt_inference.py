@@ -50,7 +50,7 @@ def inferenceBox(img):
     _scores, _boxes, _classes, _num_detections = tf_sess.run([tf_scores, tf_boxes, tf_classes, tf_num_detections], 
                                                           feed_dict={tf_input: image_resized[None, ...]})
 
-    amonut = 4
+    num_detections = 4
     boxes = _boxes[0][0:amount]
     classes = _classes[0][0:amount]
     scores = _scores[0][0:amount]
@@ -81,7 +81,7 @@ def inferenceBox(img):
         print("Display length: " + str(display_length))
         print("Total time: " + str(total_time))
     
-    return boxes, classes, scores, amount    
+    return boxes, classes, scores, num_detections    
 
 
 #EOF

@@ -46,9 +46,9 @@ class InferBall:
         # TEMPORARILY GOT RID OF ALL PRINTING SO THAT I COULD PRINT IN THE OTHER FILE WITH CLARITY
         
         # Detect the bounding boxes around the tennis ball and gestures
-        boxes, classes, scores, amount = infer.inferenceBox(self.frame)
+        boxes, classes, scores, num_detections = infer.inferenceBox(self.frame)
 
-        for i in range(0,amount):
+        for i in range(0,num_detections):
             if classes[i] == 1: # If a tennis ball is detected
                 if scores[i] > 0.75:
                     mid = (boxes[i][3] + boxes[i][1])/2
