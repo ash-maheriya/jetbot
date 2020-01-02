@@ -33,6 +33,7 @@ class InferBall:
         self.far = 30.
         self.dist = 80.
         self.stop = False
+        self.speed = 0
 
     def infer_drive(self):
         #print("running")
@@ -55,7 +56,7 @@ class InferBall:
                     area = (boxes[i][2] - boxes[i][0]) * (boxes[i][3] - boxes[i][1]) * 10000      # Scaled area of the tennis ball box for estimation of distance
                     # Set the speed and angle values according to the bounding box     
                     self.cmd.angular.z = ((mid*2) - 1) * -1   # Set the angle aspect of the ROS variable
-                    speed = ((area/self.dist) - 1) * - 1  
+                    self.speed = ((area/self.dist) - 1) * - 1  
             elif classes[i] == 2:  # If the "come closer" gesture is detected
                 if scores[i] > 0.75:
                     self.dist = self.near
@@ -69,18 +70,18 @@ class InferBall:
                     self.stop = False
             else:
                 self.cmd.angular.z = 0
-                speed = 0                        
+                self.speed = 0                        
         # Keep speed between -1 and 1
-        if speed > 1:
-            speed = 1
-        if speed < -1:
-            speed = -1
+        if self.speed > 1:
+            self.speed = 1
+        if self.speed < -1:
+            self.speed = -1
         
         if self.stop is True:
             self.cmd.angular.z = 0
-            speed = 0
+            self.speed = 0
         # Set the speed aspect of the ROS variable
-        self.cmd.linear.x = speed 
+        self.cmd.linear.x = self.speed 
 
         # Publish the ROS variable to the topic that the Arduino is subscribed to
         self.drive_pub.publish(self.cmd)

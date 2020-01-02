@@ -51,9 +51,9 @@ def inferenceBox(img):
                                                           feed_dict={tf_input: image_resized[None, ...]})
 
     num_detections = 4
-    boxes = _boxes[0][0:amount]
-    classes = _classes[0][0:amount]
-    scores = _scores[0][0:amount]
+    boxes = _boxes[0][0:num_detections]
+    classes = _classes[0][0:num_detections]
+    scores = _scores[0][0:num_detections]
 
     # Visualize one bounding box and print out the time each process takes
     if (debug):
