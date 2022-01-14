@@ -1,4 +1,4 @@
-d# jetbot
+# jetbot
 Jetson TX1/TX2 based companion robot using computer vision, ROS, machine learning based object detection, and Kalman filter based tracking.
 
 This repository contains the files that are necessary for a companion robot. I wanted to create something that felt less like a mechanical entity and more like a living being. The robot uses computer vision and machine learning to follow me around when I am holding a tennis ball and also responds to my hand gestures. I created datasets by taking videos of a tennis ball and a set of hand gestures in various angles and then annotating these gestures using OpenCV's CVAT tool (https://github.com/openvinotoolkit/cvat). I then used these datasets to create machine learning networks that could perform object detection in order to track the tennis ball and the various hand gestures.
